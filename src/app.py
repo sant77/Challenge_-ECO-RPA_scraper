@@ -106,6 +106,7 @@ class ScraperDian():
 
             if isinstance(cantidad_vendida, (int, float)):  # Asegurar que la cantidad es un número
                 productos.append((nombre_producto, marca, precio, cantidad_vendida))
+                self.total += cantidad_vendida
 
             row_num += 1  # Avanzar a la siguiente fila
 
@@ -121,6 +122,8 @@ class ScraperDian():
             print(f"{i:<3} {producto:<30} {marca:<20} {precio:<10} {cantidad:<10}")
 
         self.top_products = productos[:self.top_n]
+        self.total_products = sum(p[3] for p in self.top_products)
+        self.percentage = (self.total_products / self.total * 100) if self.total > 0 else 0
     
 
     def create_csv_out_put(self):
@@ -130,6 +133,13 @@ class ScraperDian():
             for producto, marca, precio, _ in self.top_products:  # Excluye cantidad vendida
                 writer.writerow([producto, marca, precio])
 
+    def show_statistics(self):
+        # Calcular porcentaje de los 10 productos más vendidos respecto al total
+    
+        print("\n📊 **Estadísticas de Ventas:**")
+        print(f"🔹 Total de productos vendidos: {self.total}")
+        print(f"🔹 Total de los 10 productos más vendidos: {self.total_products}")
+        print(f"🔹 Porcentaje que representan los 10 productos más vendidos: {self.percentage:.2f}%")
 
     def send_email(self):
 
@@ -141,9 +151,9 @@ class ScraperDian():
         #CONFIGURACIÓN DEL MENSAJE
         sender_email = smtp_username
         receiver_email = reciver
-        subject = 'RESULTADOS'
-        body = f"""RESUMEN:
-        El total de los productos vendidos fue de {totalProductos}, de los cuales {total} corresponden al total de los 10 productos más vendidos, los cuales equivalen al {porcentaje}% del total de productos vendidos"""
+        subject = 'Top 10 productos más vendidos 2021'
+        body = f"""En el siguiente correo se encuentra adjunto el top 10 productos más vendidos, de un total de {self.total} vendidos.
+                En el top 10 fueron vendidos {self.total_products} productos que representan el {self.percentage:.2f}%"""
 
         message = MIMEMultipart()
         message['From'] = sender_email
@@ -182,7 +192,7 @@ def main():
     #scraper_dian.downlad_file()
     scraper_dian.get_top_products(file_name=file_name)
     scraper_dian.create_csv_out_put()
-
+    scraper_dian.show_statistics()
 if __name__ == "__main__":
 
     main()
