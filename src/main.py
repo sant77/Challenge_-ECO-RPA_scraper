@@ -194,9 +194,9 @@ class ScraperDian():
             server.starttls(context=context)
             server.login(smtp_username, smtp_password)
             server.sendmail(sender_email, receiver_email, message.as_string())
-            print("El correo fue enviado exitosamente.")
+            print("The email was sended sucefully.")
         finally:
-            server.quit()  # 🔴 SE CIERRA EL SERVIDOR SMTP
+            server.quit()  #
 
     
 
