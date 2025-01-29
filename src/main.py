@@ -78,7 +78,7 @@ class ScraperDian():
 
         # Obtener encabezados desde la fila 8
         headers = [cell.value for cell in sheet[8]]
-        print(headers)
+        
         # Buscar las columnas necesarias
         try:
             idx_nombre_producto = headers.index("Nombre producto")
@@ -191,7 +191,7 @@ def main():
     #scraper_dian.downlad_file()
     scraper_dian.get_top_products(file_name=file_name)
     scraper_dian.create_csv_out_put()
-    scraper_dian.show_statistics()
+    #scraper_dian.show_statistics()
     scraper_dian.send_email()
 
 if __name__ == "__main__":
