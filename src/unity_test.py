@@ -47,7 +47,7 @@ class TestScraperDian(unittest.TestCase):
         self.scraper.top_products = [("Producto1", "Marca1", 100, 50)]
         self.scraper.create_csv_out_put()
         mock_open.assert_called_once()
-        mock_csv_writer().writerow.assert_called_with(["Producto1", "Marca1", 100])
+        mock_csv_writer().writerow.assert_called_with(["Producto1", "Marca1", 100, 100])
     
     @patch("smtplib.SMTP")
     def test_send_email(self, mock_smtp):

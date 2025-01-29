@@ -143,11 +143,15 @@ class ScraperDian():
     
 
     def create_csv_out_put(self):
+        total_price = 0
+        for producto, marca, precio, _ in self.top_products:
+            total_price += precio
+             
         with open(f"{self.folder_names[2]}\\top_10_productos.csv", mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            writer.writerow(["Nombre producto", "Marca", "Precio reportado"])  # Encabezados sin Cantidades vendidas
+            writer.writerow(["Nombre producto", "Marca", "Precio reportado", "Precio total"])  # Encabezados sin Cantidades vendidas
             for producto, marca, precio, _ in self.top_products:  # Excluye cantidad vendida
-                writer.writerow([producto, marca, precio])
+                writer.writerow([producto, marca, precio, total_price])
 
     def show_statistics(self):
         # Calcular porcentaje de los 10 productos más vendidos respecto al total
@@ -188,15 +192,14 @@ class ScraperDian():
 
         context = ssl.create_default_context()
 
-        # CONEXIÓN CON EL SERVIDOR SMTP
         try:
             server = smtplib.SMTP(smtp_server, smtp_port)
             server.starttls(context=context)
             server.login(smtp_username, smtp_password)
             server.sendmail(sender_email, receiver_email, message.as_string())
-            print("The email was sended sucefully.")
+            print("The email was sended sucessfully.")
         finally:
-            server.quit()  #
+            server.quit()  
 
     
 
@@ -208,7 +211,7 @@ def main():
     scraper_dian.downlad_file()
     scraper_dian.get_top_products(file_name=file_name)
     scraper_dian.create_csv_out_put()
-    #scraper_dian.show_statistics()
+    scraper_dian.show_statistics()
     scraper_dian.send_email()
 
 if __name__ == "__main__":
