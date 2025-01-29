@@ -1,6 +1,6 @@
 # ScraperDian - Proyecto de Web Scraping 🕷️
 
-## Disclamer 🙈
+## Disclaimer 🙈
 Debido a un error se me fue enviado un documento con la solución parcial por lo tanto para hacer la competencia justa el metodo de procesamiento de datos se volvió a hacer usando la libreria openpyxl en lugar de Pandas y se modificó enteramente el código pero tomando como base servicio ya construido de correos y el scraper.
 
 ## Descripción 📜
@@ -59,7 +59,7 @@ python main.py
 python -m unittest -v unity_test.py
 ```
 
-<img  src="/img/test_unitary.png.png" width="500">
+<img  src="/img/test_unitary.png" width="500">
 
 ## Pruebas de integración
 
