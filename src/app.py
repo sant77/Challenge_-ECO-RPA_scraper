@@ -32,7 +32,9 @@ class ScraperDian():
         self.total = 0
         self.percentage = 0
         self.total_products = 0
-        self.folder_names = ["file", "file\\download", "file\\sended"]
+        self.folder_names = ["file", "file\\download", "file\\toSend"]
+        self.top_products = []
+        self.top_n=10
 
     def downlad_file(self):
         print(f"{self.path}/{self.folder_names[1]}")
@@ -69,7 +71,7 @@ class ScraperDian():
                 continue
 
 
-    def generate_file_with_top_products(self, file_name, top_n=10):
+    def get_top_products(self, file_name):
        
         wb = load_workbook(f"{self.folder_names[1]}\\{file_name}")
         sheet = wb.active
@@ -111,17 +113,22 @@ class ScraperDian():
         productos.sort(key=lambda x: x[3], reverse=True)
 
         # Mostrar los productos más vendidos con su información
-        print(f"\nTop {top_n} productos más vendidos:")
+        print(f"\nTop {self.top_n} productos más vendidos:")
         print(f"{'N°':<3} {'Producto':<30} {'Marca':<20} {'Precio':<10} {'Vendidos':<10}")
         print("-" * 75)
 
-        for i, (producto, marca, precio, cantidad) in enumerate(productos[:top_n], 1):
+        for i, (producto, marca, precio, cantidad) in enumerate(productos[:self.top_n], 1):
             print(f"{i:<3} {producto:<30} {marca:<20} {precio:<10} {cantidad:<10}")
 
-        with open("top_10_productos.csv", mode="w", newline="", encoding="utf-8") as file:
+        self.top_products = productos[:self.top_n]
+    
+
+    def create_csv_out_put(self):
+        with open(f"{self.folder_names[2]}\\top_10_productos.csv", mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            writer.writerow(["Nombre producto", "Marca", "Precio reportado", "Cantidades vendidas"])  # Encabezados
-            writer.writerows(productos[:top_n])  # Escribir solo los 10 más vendidos
+            writer.writerow(["Nombre producto", "Marca", "Precio reportado"])  # Encabezados sin Cantidades vendidas
+            for producto, marca, precio, _ in self.top_products:  # Excluye cantidad vendida
+                writer.writerow([producto, marca, precio])
 
 
     def send_email(self):
@@ -144,7 +151,7 @@ class ScraperDian():
         message['Subject'] = subject
         message.attach(MIMEText(body, 'plain'))
 
-        filename = "Archivos\\Resultado\\final.csv"
+        filename = f"{self.folder_names[2]}\\top_10_productos.csv"
         attachment = open(filename, "rb")
 
         part = MIMEBase('application', 'octet-stream')
@@ -173,7 +180,8 @@ def main():
 
     #scraper_dian.create_folder()
     #scraper_dian.downlad_file()
-    scraper_dian.generate_file_with_top_products(file_name=file_name)
+    scraper_dian.get_top_products(file_name=file_name)
+    scraper_dian.create_csv_out_put()
 
 if __name__ == "__main__":
 
