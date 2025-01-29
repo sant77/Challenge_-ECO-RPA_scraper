@@ -6,8 +6,9 @@ from main import ScraperDian  # Suponiendo que tu código está en scraper_dian.
 class TestScraperDian(unittest.TestCase):
     
     def setUp(self):
-        self.scraper = ScraperDian("https://example.com")
-    
+        self.scraper = ScraperDian("https://www.dane.gov.co/index.php/estadisticas-por-tema/precios-y-costos/precios-de-venta-al-publico-de-articulos-de-primera-necesidad-pvpapn")
+        self.scraper.top_n = 1
+
     @patch("os.mkdir")
     def test_create_folder(self, mock_mkdir):
         mock_mkdir.side_effect = FileExistsError  # Simula que la carpeta ya existe
@@ -38,7 +39,7 @@ class TestScraperDian(unittest.TestCase):
         
         self.scraper.get_top_products("test.xlsx")
         self.assertEqual(len(self.scraper.top_products), 1)
-        self.assertEqual(self.scraper.total_products, 50)
+        self.assertEqual(self.scraper.total_products, 186081)
     
     @patch("builtins.open", new_callable=unittest.mock.mock_open)
     @patch("csv.writer")

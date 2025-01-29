@@ -37,7 +37,7 @@ class ScraperDian():
         self.top_n=10
 
     def downlad_file(self):
-        print(f"{self.path}/{self.folder_names[1]}")
+        
         settings = Options()
         settings.add_experimental_option(
             "prefs", {  "download.default_directory":f"{self.path}\\{self.folder_names[1]}",
@@ -64,10 +64,9 @@ class ScraperDian():
 
         for name in self.folder_names:
             try:
-                print(name)
                 os.mkdir(name)
             except FileExistsError:
-                print("hola")
+
                 continue
 
 
@@ -89,7 +88,7 @@ class ScraperDian():
             print("No se encontró alguna de las columnas necesarias.")
             return
 
-        productos = []
+        productos = {}
         row_num = 9  # Iniciar desde la fila donde comienzan los datos
 
         while True:
@@ -105,23 +104,40 @@ class ScraperDian():
             cantidad_vendida = row[idx_cantidad].value
 
             if isinstance(cantidad_vendida, (int, float)):  # Asegurar que la cantidad es un número
-                productos.append((nombre_producto, marca, precio, cantidad_vendida))
+                key = (nombre_producto, marca)  # Identificador único del producto
+
+                if key in productos:
+                    
+                    productos[key]["cantidad"] += cantidad_vendida 
+
+                else:
+                    productos[key] = {
+                    "marca":marca,
+                    "precio":precio,
+                    "cantidad":cantidad_vendida
+                    }
+               
+                
                 self.total += cantidad_vendida
 
             row_num += 1  # Avanzar a la siguiente fila
 
         # Ordenar por cantidad vendida en orden descendente
-        productos.sort(key=lambda x: x[3], reverse=True)
+        productos_ordenados = sorted(
+        [(k[0], v["marca"], v["precio"], v["cantidad"]) for k, v in productos.items()],
+        key=lambda x: x[3],  
+        reverse=True  # Orden descendente
+    )
 
         # Mostrar los productos más vendidos con su información
         print(f"\nTop {self.top_n} productos más vendidos:")
         print(f"{'N°':<3} {'Producto':<30} {'Marca':<20} {'Precio':<10} {'Vendidos':<10}")
         print("-" * 75)
 
-        for i, (producto, marca, precio, cantidad) in enumerate(productos[:self.top_n], 1):
+        for i, (producto, marca, precio, cantidad) in enumerate(productos_ordenados[:self.top_n], 1):
             print(f"{i:<3} {producto:<30} {marca:<20} {precio:<10} {cantidad:<10}")
 
-        self.top_products = productos[:self.top_n]
+        self.top_products = productos_ordenados[:self.top_n]
         self.total_products = sum(p[3] for p in self.top_products)
         self.percentage = (self.total_products / self.total * 100) if self.total > 0 else 0
     
@@ -142,17 +158,17 @@ class ScraperDian():
         print(f"🔹 Porcentaje que representan los 10 productos más vendidos: {self.percentage:.2f}%")
 
     def send_email(self):
-
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
         smtp_username = sender
         smtp_password = password_env
 
-        #CONFIGURACIÓN DEL MENSAJE
+        # CONFIGURACIÓN DEL MENSAJE
         sender_email = smtp_username
         receiver_email = reciver
         subject = 'Top 10 productos más vendidos 2021'
-        body = f"""En el siguiente correo se encuentra adjunto el top 10 productos más vendidos, de un total de {self.total} vendidos. El top 10 está compuesto por {self.total_products} productos que representan el {self.percentage:.2f}%"""
+        body = f"""En el siguiente correo se encuentra adjunto el top 10 productos más vendidos, de un total de {self.total} vendidos. 
+        El top 10 está compuesto por {self.total_products} productos que representan el {self.percentage:.2f}%"""
 
         message = MIMEMultipart()
         message['From'] = sender_email
@@ -161,25 +177,26 @@ class ScraperDian():
         message.attach(MIMEText(body, 'plain'))
 
         filename = f"{self.folder_names[2]}\\top_10_productos.csv"
-        attachment = open(filename, "rb")
 
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload(attachment.read())
-        encoders.encode_base64(part)
-
-        part.add_header('Content-Disposition', 'attachment; filename=final.csv')
-
-        message.attach(part)
+        # ABRIR Y CERRAR AUTOMÁTICAMENTE EL ARCHIVO ADJUNTO
+        with open(filename, "rb") as attachment:
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(attachment.read())
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', 'attachment; filename=top_10_productos.csv')
+            message.attach(part)
 
         context = ssl.create_default_context()
 
-        #CONEXIÓN CON EL SERVIDOR
-        server =  smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls(context=context)
-        server.login(smtp_username, smtp_password)
-        server.sendmail(sender_email, receiver_email, message.as_string())
-
-        print("Correo electrónico enviado exitosamente.")
+        # CONEXIÓN CON EL SERVIDOR SMTP
+        try:
+            server = smtplib.SMTP(smtp_server, smtp_port)
+            server.starttls(context=context)
+            server.login(smtp_username, smtp_password)
+            server.sendmail(sender_email, receiver_email, message.as_string())
+            print("El correo fue enviado exitosamente.")
+        finally:
+            server.quit()  # 🔴 SE CIERRA EL SERVIDOR SMTP
 
     
 
@@ -187,8 +204,8 @@ def main():
 
     scraper_dian = ScraperDian(link=link_dane)
 
-    #scraper_dian.create_folder()
-    #scraper_dian.downlad_file()
+    scraper_dian.create_folder()
+    scraper_dian.downlad_file()
     scraper_dian.get_top_products(file_name=file_name)
     scraper_dian.create_csv_out_put()
     #scraper_dian.show_statistics()
