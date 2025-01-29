@@ -152,8 +152,7 @@ class ScraperDian():
         sender_email = smtp_username
         receiver_email = reciver
         subject = 'Top 10 productos más vendidos 2021'
-        body = f"""En el siguiente correo se encuentra adjunto el top 10 productos más vendidos, de un total de {self.total} vendidos.
-                En el top 10 fueron vendidos {self.total_products} productos que representan el {self.percentage:.2f}%"""
+        body = f"""En el siguiente correo se encuentra adjunto el top 10 productos más vendidos, de un total de {self.total} vendidos. El top 10 está compuesto por {self.total_products} productos que representan el {self.percentage:.2f}%"""
 
         message = MIMEMultipart()
         message['From'] = sender_email
@@ -193,6 +192,8 @@ def main():
     scraper_dian.get_top_products(file_name=file_name)
     scraper_dian.create_csv_out_put()
     scraper_dian.show_statistics()
+    scraper_dian.send_email()
+
 if __name__ == "__main__":
 
     main()
