@@ -30,7 +30,7 @@ Debido a un error se me fue enviado un documento con la solución parcial por lo
 ### 1. Clona el repositorio
 
 ```bash
-git clone https://github.com/tu_usuario/scraper-dian.git
+git clone https://github.com/sant77/Challenge_-ECO-RPA_scraper.git
 ```
 
 ### Intalar dependencias
